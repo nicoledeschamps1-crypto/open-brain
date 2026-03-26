@@ -117,6 +117,18 @@ from thoughts
 where metadata->>'type' = 'decision'
 order by created_at desc;
 
+-- All skills/capabilities
+create or replace view skills as
+select
+  id,
+  content,
+  metadata->'topics' as domains,
+  metadata->>'project' as project,
+  created_at
+from thoughts
+where metadata->>'type' = 'skill'
+order by created_at desc;
+
 -- All feedback/lessons
 create or replace view lessons as
 select

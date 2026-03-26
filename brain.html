@@ -190,6 +190,7 @@
   .pad-tasks .hq-pad-icon { background: rgba(239,68,68,0.12); color: var(--red); }
   .pad-insights .hq-pad-icon { background: rgba(99,102,241,0.12); color: var(--blue); }
   .pad-references .hq-pad-icon { background: rgba(6,182,212,0.12); color: var(--cyan); }
+  .pad-skills .hq-pad-icon { background: rgba(249,115,22,0.12); color: var(--orange); }
   .pad-sessions .hq-pad-icon { background: rgba(236,72,153,0.12); color: var(--pink); }
 
   /* ═══ Full-width top pads ═══ */
@@ -493,6 +494,94 @@
     letter-spacing: 0.3px;
   }
 
+  .thought-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .thought-row:hover .thought-actions { opacity: 1; }
+
+  .thought-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text3);
+    transition: all 0.12s;
+  }
+
+  .thought-btn:hover { border-color: var(--accent); color: var(--text); }
+  .thought-delete:hover { border-color: var(--red); color: var(--red); }
+
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 299;
+  }
+
+  .confirm-dialog {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 24px;
+    z-index: 300;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    max-width: 440px;
+    width: 90%;
+  }
+
+  .confirm-dialog h3 { font-size: 16px; margin-bottom: 12px; }
+  .confirm-dialog p { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
+
+  .confirm-dialog textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 12px;
+  }
+
+  .confirm-dialog textarea:focus { border-color: var(--accent); }
+
+  .dialog-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .dialog-buttons button {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-cancel { background: var(--surface3); color: var(--text2); }
+  .btn-cancel:hover { background: var(--border); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-danger:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { opacity: 0.85; }
+
   .thought-match {
     font-size: 11px;
     font-weight: 600;
@@ -657,6 +746,7 @@
   <button class="active" data-page="hq">HQ</button>
   <button data-page="decisions">Decisions</button>
   <button data-page="lessons">Lessons</button>
+  <button data-page="skills">Skills</button>
   <button data-page="tasks">Tasks</button>
   <button data-page="insights">Insights</button>
   <button data-page="references">References</button>
@@ -749,6 +839,15 @@
       <ul class="hq-pad-preview" id="previewLessons"><li>Loading...</li></ul>
     </div>
 
+    <div class="hq-pad pad-skills" data-page="skills">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F6E0;&#xFE0F;</div>
+        <div class="hq-pad-title">Skills</div>
+        <div class="hq-pad-count" id="countSkills">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewSkills"><li>Loading...</li></ul>
+    </div>
+
     <div class="hq-pad pad-tasks" data-page="tasks">
       <div class="hq-pad-header">
         <div class="hq-pad-icon">&#x1F534;</div>
@@ -838,6 +937,7 @@ const CONFIG = {
 const TYPE_MAP = {
   decisions: { type: 'decision', icon: '\u2696\uFE0F', title: 'Decisions' },
   lessons: { type: 'feedback', icon: '\uD83D\uDCA1', title: 'Lessons Learned' },
+  skills: { type: 'skill', icon: '\uD83D\uDEE0\uFE0F', title: 'Skills' },
   tasks: { type: 'task', icon: '\uD83D\uDD34', title: 'Tasks' },
   insights: { type: 'insight', icon: '\u2728', title: 'Insights' },
   references: { type: 'reference', icon: '\uD83D\uDCCC', title: 'References' },
@@ -845,7 +945,7 @@ const TYPE_MAP = {
 };
 
 const TYPE_ICONS = {
-  decision: '\u2696\uFE0F', feedback: '\uD83D\uDCA1', insight: '\u2728',
+  decision: '\u2696\uFE0F', feedback: '\uD83D\uDCA1', skill: '\uD83D\uDEE0\uFE0F', insight: '\u2728',
   session: '\uD83D\uDCDD', reference: '\uD83D\uDCCC', task: '\uD83D\uDD34',
   person_note: '\uD83D\uDC64', project_state: '\uD83D\uDCCA'
 };
@@ -1186,6 +1286,10 @@ function renderThoughtList(container, entries) {
           ${e.similarity ? `<div class="thought-match">${e.similarity.toFixed(0)}%</div>` : ''}
           <div class="thought-time">${e.date ? relTime(e.date) : ''}</div>
           ${e.project ? `<div class="thought-proj">${e.project}</div>` : ''}
+          ${e.id ? `<div class="thought-actions">
+            <button class="thought-btn thought-edit" onclick="editThought('${e.id}', this)" title="Edit">&#x270F;&#xFE0F;</button>
+            <button class="thought-btn thought-delete" onclick="deleteThought('${e.id}', this)" title="Delete">&#x1F5D1;&#xFE0F;</button>
+          </div>` : ''}
         </div>
       </div>
     `;
@@ -1198,6 +1302,97 @@ function toggleRow(id, btn) {
   btn.textContent = el.classList.contains('collapsed') ? 'more' : 'less';
 }
 
+// ═══ Edit / Delete ═══
+function editThought(id, btnEl) {
+  const row = btnEl.closest('.thought-row');
+  const textEl = row.querySelector('.thought-text');
+  const currentText = textEl.textContent;
+
+  showDialog({
+    title: 'Edit Thought',
+    body: `<textarea id="editContent">${escHtml(currentText)}</textarea>`,
+    confirmLabel: 'Save',
+    confirmClass: 'btn-primary',
+    onConfirm: async () => {
+      const newContent = document.getElementById('editContent').value.trim();
+      if (!newContent || newContent === currentText) return;
+      try {
+        await mcpCall('update_thought', { id, content: newContent });
+        showToast('Updated!');
+        refreshCurrentPage();
+      } catch (e) {
+        showToast('Error: ' + e.message);
+      }
+    }
+  });
+}
+
+function deleteThought(id, btnEl) {
+  const row = btnEl.closest('.thought-row');
+  const textEl = row.querySelector('.thought-text');
+  const preview = textEl.textContent.slice(0, 80);
+
+  showDialog({
+    title: 'Delete Thought?',
+    body: `<p>This will permanently delete:</p><p style="color:var(--text);font-style:italic">"${escHtml(preview)}${preview.length >= 80 ? '...' : ''}"</p>`,
+    confirmLabel: 'Delete',
+    confirmClass: 'btn-danger',
+    onConfirm: async () => {
+      try {
+        await mcpCall('delete_thought', { id });
+        showToast('Deleted');
+        refreshCurrentPage();
+      } catch (e) {
+        showToast('Error: ' + e.message);
+      }
+    }
+  });
+}
+
+function showDialog({ title, body, confirmLabel, confirmClass, onConfirm }) {
+  document.querySelectorAll('.confirm-overlay, .confirm-dialog').forEach(el => el.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+
+  const dialog = document.createElement('div');
+  dialog.className = 'confirm-dialog';
+  dialog.innerHTML = `
+    <h3>${title}</h3>
+    ${body}
+    <div class="dialog-buttons">
+      <button class="btn-cancel" onclick="closeDialog()">Cancel</button>
+      <button class="${confirmClass}" id="dialogConfirm">${confirmLabel}</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(dialog);
+
+  overlay.addEventListener('click', closeDialog);
+  document.getElementById('dialogConfirm').addEventListener('click', async function() {
+    this.disabled = true;
+    this.textContent = '...';
+    await onConfirm();
+    closeDialog();
+  });
+
+  // Focus textarea if present
+  const ta = dialog.querySelector('textarea');
+  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+
+function closeDialog() {
+  document.querySelectorAll('.confirm-overlay, .confirm-dialog').forEach(el => el.remove());
+}
+
+function refreshCurrentPage() {
+  if (currentPage === 'hq') loadHQ();
+  else if (currentPage === 'browse') loadBrowsePage();
+  else if (currentPage.startsWith('project:')) loadProjectPage(currentProject);
+  else if (TYPE_MAP[currentPage]) loadListPage(currentPage);
+}
+
 // ═══ Parsers ═══
 function parseListEntry(block) {
   if (!block.trim()) return null;
@@ -1205,6 +1400,7 @@ function parseListEntry(block) {
   const projMatch = block.match(/\[(\w+)\]/g);
   const typeMatch = block.match(/\((\w+)/);
   const tagsMatch = block.match(/\u2014 (.+?)\)/);
+  const idMatch = block.match(/\[id:([a-f0-9-]{36})\]/);
   const contentStart = block.indexOf('\n   ');
   const content = contentStart > -1 ? block.slice(contentStart).trim() : block;
 
@@ -1212,11 +1408,12 @@ function parseListEntry(block) {
   if (projMatch) {
     for (const m of projMatch) {
       const v = m.replace(/[\[\]]/g, '');
-      if (!v.match(/^\d/)) { project = v; break; }
+      if (!v.match(/^\d/) && !v.startsWith('id:')) { project = v; break; }
     }
   }
 
   return {
+    id: idMatch?.[1] || null,
     content, type: typeMatch?.[1] || 'unknown', project,
     topics: tagsMatch?.[1]?.split(', ') || [],
     date: dateMatch?.[1] || '', status: null, actions: [], similarity: null
@@ -1226,6 +1423,7 @@ function parseListEntry(block) {
 function parseSearchEntry(block) {
   if (!block.trim()) return null;
   const simMatch = block.match(/(\d+\.\d+)% match/);
+  const idMatch = block.match(/\[id:([a-f0-9-]{36})\]/);
   const dateMatch = block.match(/Captured: (.+)/);
   const typeMatch = block.match(/Type: (\w+)/);
   const projMatch = block.match(/Project: (\w+)/);
@@ -1241,6 +1439,7 @@ function parseSearchEntry(block) {
   const content = lines.slice(ci).join('\n').trim();
 
   return {
+    id: idMatch?.[1] || null,
     content, type: typeMatch?.[1] || 'unknown', project: projMatch?.[1] || '',
     topics: topicsMatch?.[1]?.split(', ') || [],
     date: dateMatch?.[1] || '', status: statusMatch?.[1] || null,
@@ -1332,6 +1531,10 @@ function renderThoughtRow(e) {
       <div class="thought-side">
         ${e.similarity ? `<div class="thought-match">${e.similarity.toFixed(0)}%</div>` : ''}
         <div class="thought-time">${e.date ? relTime(e.date) : ''}</div>
+        ${e.id ? `<div class="thought-actions">
+          <button class="thought-btn thought-edit" onclick="editThought('${e.id}', this)" title="Edit">&#x270F;&#xFE0F;</button>
+          <button class="thought-btn thought-delete" onclick="deleteThought('${e.id}', this)" title="Delete">&#x1F5D1;&#xFE0F;</button>
+        </div>` : ''}
       </div>
     </div>
   `;
@@ -1408,8 +1611,9 @@ document.addEventListener('keydown', (e) => {
     goTo('browse');
     setTimeout(() => document.getElementById('browseSearchInput').focus(), 50);
   }
-  if (e.key === 'Escape' && currentPage !== 'hq') {
-    goTo('hq');
+  if (e.key === 'Escape') {
+    if (document.querySelector('.confirm-dialog')) { closeDialog(); return; }
+    if (currentPage !== 'hq') goTo('hq');
   }
 });
 

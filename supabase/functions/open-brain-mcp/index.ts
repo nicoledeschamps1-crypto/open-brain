@@ -51,7 +51,7 @@ async function extractMetadata(text: string): Promise<Record<string, unknown>> {
         {
           role: "system",
           content: `Extract metadata from a developer's captured thought. Return JSON with:
-- "type": one of "session", "decision", "feedback", "insight", "reference", "person_note", "project_state", "task"
+- "type": one of "session", "decision", "feedback", "skill", "insight", "reference", "person_note", "project_state", "task". Use "skill" for a capability, technique, or pattern the user has learned and can reuse (e.g. "Skill: WebGL shader pipeline"). Use "feedback" for lessons from mistakes or incidents.
 - "project": one of "blobfx", "jobhunt", "jobops", "global", or null if unclear
 - "topics": array of 1-4 short tags (e.g. "audio", "shader", "ios", "mobile", "p5js", "mediapipe", "timeline", "ui", "architecture")
 - "people": array of people mentioned (empty if none)
@@ -124,10 +124,10 @@ server.registerTool(
       }
 
       const results = data.map(
-        (t: { content: string; metadata: Record<string, unknown>; similarity: number; created_at: string }, i: number) => {
+        (t: { id: string; content: string; metadata: Record<string, unknown>; similarity: number; created_at: string }, i: number) => {
           const m = t.metadata || {};
           const parts = [
-            `--- Result ${i + 1} (${(t.similarity * 100).toFixed(1)}% match) ---`,
+            `--- Result ${i + 1} (${(t.similarity * 100).toFixed(1)}% match) [id:${t.id}] ---`,
             `Captured: ${new Date(t.created_at).toLocaleDateString()}`,
             `Type: ${m.type || "unknown"} | Project: ${m.project || "?"}`,
           ];
@@ -181,7 +181,7 @@ server.registerTool(
     try {
       let q = supabase
         .from("thoughts")
-        .select("content, metadata, created_at")
+        .select("id, content, metadata, created_at")
         .order("created_at", { ascending: false })
         .limit(limit);
 
@@ -209,11 +209,11 @@ server.registerTool(
       }
 
       const results = data.map(
-        (t: { content: string; metadata: Record<string, unknown>; created_at: string }, i: number) => {
+        (t: { id: string; content: string; metadata: Record<string, unknown>; created_at: string }, i: number) => {
           const m = t.metadata || {};
           const tags = Array.isArray(m.topics) ? (m.topics as string[]).join(", ") : "";
           const proj = m.project ? `[${m.project}]` : "";
-          return `${i + 1}. [${new Date(t.created_at).toLocaleDateString()}] ${proj} (${m.type || "??"}${tags ? " — " + tags : ""})\n   ${t.content.slice(0, 200)}${t.content.length > 200 ? "..." : ""}`;
+          return `${i + 1}. [${new Date(t.created_at).toLocaleDateString()}] ${proj} (${m.type || "??"}${tags ? " — " + tags : ""}) [id:${t.id}]\n   ${t.content.slice(0, 200)}${t.content.length > 200 ? "..." : ""}`;
         }
       );
 
@@ -242,7 +242,7 @@ server.registerTool(
     inputSchema: {
       content: z.string().describe("The thought — a clear, standalone statement"),
       project: z.string().optional().describe("Override project: blobfx, jobhunt, jobops, global"),
-      type: z.string().optional().describe("Override type: session, decision, feedback, insight, reference, person_note, project_state, task"),
+      type: z.string().optional().describe("Override type: session, decision, feedback, skill, insight, reference, person_note, project_state, task"),
     },
   },
   async ({ content, project, type }) => {
@@ -377,7 +377,7 @@ server.registerTool(
     try {
       let q = supabase
         .from("thoughts")
-        .select("content, metadata, created_at")
+        .select("id, content, metadata, created_at")
         .order("created_at", { ascending: false })
         .limit(25);
 
@@ -399,10 +399,10 @@ server.registerTool(
       }
 
       const results = data.map(
-        (t: { content: string; metadata: Record<string, unknown>; created_at: string }, i: number) => {
+        (t: { id: string; content: string; metadata: Record<string, unknown>; created_at: string }, i: number) => {
           const m = t.metadata || {};
           const age = Math.floor((Date.now() - new Date(t.created_at).getTime()) / 86400000);
-          return `${i + 1}. [${m.project || "?"}] (${m.status || "?"}, ${age}d ago) ${m.type || ""}\n   ${t.content.slice(0, 150)}`;
+          return `${i + 1}. [${m.project || "?"}] (${m.status || "?"}, ${age}d ago) ${m.type || ""} [id:${t.id}]\n   ${t.content.slice(0, 150)}`;
         }
       );
 
@@ -411,6 +411,108 @@ server.registerTool(
           type: "text" as const,
           text: `${data.length} open item(s):\n\n${results.join("\n\n")}`,
         }],
+      };
+    } catch (err: unknown) {
+      return {
+        content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Tool 6: Update Thought
+server.registerTool(
+  "update_thought",
+  {
+    title: "Update Thought",
+    description:
+      "Update the content of an existing thought. Re-embeds and re-extracts metadata automatically.",
+    inputSchema: {
+      id: z.string().uuid().describe("The thought UUID to update"),
+      content: z.string().describe("The updated content"),
+    },
+  },
+  async ({ id, content }) => {
+    try {
+      const { data: existing, error: fetchErr } = await supabase
+        .from("thoughts")
+        .select("id")
+        .eq("id", id)
+        .single();
+
+      if (fetchErr || !existing) {
+        return {
+          content: [{ type: "text" as const, text: `Thought not found: ${id}` }],
+          isError: true,
+        };
+      }
+
+      const [embedding, metadata] = await Promise.all([
+        getEmbedding(content),
+        extractMetadata(content),
+      ]);
+      metadata.source = "mcp";
+      metadata.edited = true;
+
+      const { error } = await supabase
+        .from("thoughts")
+        .update({ content, embedding, metadata })
+        .eq("id", id);
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: `Update failed: ${error.message}` }],
+          isError: true,
+        };
+      }
+
+      return {
+        content: [{ type: "text" as const, text: `Updated thought ${id}` }],
+      };
+    } catch (err: unknown) {
+      return {
+        content: [{ type: "text" as const, text: `Error: ${(err as Error).message}` }],
+        isError: true,
+      };
+    }
+  }
+);
+
+// Tool 7: Delete Thought
+server.registerTool(
+  "delete_thought",
+  {
+    title: "Delete Thought",
+    description: "Permanently delete a thought by ID.",
+    inputSchema: {
+      id: z.string().uuid().describe("The thought UUID to delete"),
+    },
+  },
+  async ({ id }) => {
+    try {
+      const { data, error } = await supabase
+        .from("thoughts")
+        .delete()
+        .eq("id", id)
+        .select("id");
+
+      if (error) {
+        return {
+          content: [{ type: "text" as const, text: `Delete failed: ${error.message}` }],
+          isError: true,
+        };
+      }
+
+      if (!data || data.length === 0) {
+        return {
+          content: [{ type: "text" as const, text: `Thought not found: ${id}` }],
+          isError: true,
+        };
+      }
+
+      return {
+        content: [{ type: "text" as const, text: `Deleted thought ${id}` }],
       };
     } catch (err: unknown) {
       return {
