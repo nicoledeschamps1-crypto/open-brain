@@ -14,7 +14,7 @@ Claude Code / ChatGPT / any MCP client
 
 ## Metadata Schema (Nicole-specific)
 Every thought gets auto-extracted metadata:
-- `type`: session | decision | feedback | insight | reference | person_note | project_state | task
+- `type`: session | decision | feedback | skill | insight | reference | person_note | project_state | task
 - `project`: blobfx | jobhunt | jobops | global
 - `topics`: ["audio", "shader", "ios", "mobile", "p5js", "mediapipe", ...]
 - `people`: ["@pbltrr", ...]
@@ -33,17 +33,20 @@ Every thought gets auto-extracted metadata:
 | `list_thoughts` | Chronological list with metadata filters |
 | `thought_stats` | Totals, types, projects, topics, people |
 | `open_items` | Unresolved work across all projects |
+| `update_thought` | Update content by ID (re-embeds + re-extracts metadata) |
+| `delete_thought` | Permanently delete a thought by ID |
 
 ## SQL Views
 - `open_items` — uncommitted/active/blocked + action items
 - `decisions` — all architectural decisions
+- `skills` — all learned capabilities/techniques
 - `lessons` — all feedback/learned lessons
 - `this_week` — activity summary by type and project
 - `stale_items` — >14 days old, still marked active
 
 ## Files
 - `supabase/schema.sql` — database schema + views
-- `supabase/functions/open-brain-mcp/index.ts` — Edge Function (5 MCP tools)
+- `supabase/functions/open-brain-mcp/index.ts` — Edge Function (7 MCP tools)
 - `scripts/first-20-captures.jsonl` — initial seed data from existing projects
 - `scripts/migrate.sh` — seed runner
 - `setup.sh` — full setup automation
