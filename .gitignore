@@ -1,0 +1,4 @@
+.env
+*.pem
+supabase/.temp/
+supabase/config.toml

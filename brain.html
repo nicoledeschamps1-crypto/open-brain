@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Brain</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0e0b14;
+    --surface: #151120;
+    --surface2: #1c1730;
+    --surface3: #241e3a;
+    --border: #2a2344;
+    --border2: #352d52;
+    --text: #e8e4f0;
+    --text2: #b0a6c8;
+    --text3: #756b90;
+    --accent: #8B45E8;
+    --accent2: #a66bf0;
+    --accentBg: rgba(139,69,232,0.08);
+    --accentBorder: rgba(139,69,232,0.25);
+    --warm: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #6366f1;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --orange: #f97316;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ═══ Header ═══ */
+  header {
+    background: linear-gradient(135deg, #1a0e2e, #221540);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  header h1 span {
+    background: linear-gradient(135deg, var(--accent2), #d4a5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  header .subtitle {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* ═══ Nav ═══ */
+  nav {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 16px 20px 0;
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav button {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+  }
+
+  nav button:hover { color: var(--text2); }
+
+  nav button.active {
+    color: var(--accent2);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ═══ Page Container ═══ */
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  .page.hidden { display: none; }
+
+  /* ═══ HQ — Section Grid ═══ */
+  .hq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .hq-pad {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .hq-pad:hover {
+    border-color: var(--accentBorder);
+    background: var(--surface2);
+  }
+
+  .hq-pad-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .hq-pad-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .hq-pad-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .hq-pad-count {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text3);
+    background: var(--surface3);
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .hq-pad-preview {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+
+  .hq-pad-preview li {
+    list-style: none;
+    padding: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hq-pad-preview .time {
+    color: var(--text3);
+    font-size: 11px;
+  }
+
+  /* Pad colors */
+  .pad-decisions .hq-pad-icon { background: rgba(245,158,11,0.12); color: var(--warm); }
+  .pad-lessons .hq-pad-icon { background: rgba(16,185,129,0.12); color: var(--green); }
+  .pad-tasks .hq-pad-icon { background: rgba(239,68,68,0.12); color: var(--red); }
+  .pad-insights .hq-pad-icon { background: rgba(99,102,241,0.12); color: var(--blue); }
+  .pad-references .hq-pad-icon { background: rgba(6,182,212,0.12); color: var(--cyan); }
+  .pad-sessions .hq-pad-icon { background: rgba(236,72,153,0.12); color: var(--pink); }
+
+  /* ═══ Full-width top pads ═══ */
+  .hq-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .hq-capture {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    grid-column: 1 / -1;
+  }
+
+  .hq-capture-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+
+  .capture-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .capture-row textarea {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+    transition: border-color 0.15s;
+  }
+
+  .capture-row textarea:focus { border-color: var(--accent); }
+  .capture-row textarea::placeholder { color: var(--text3); }
+
+  .capture-row button {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+
+  .capture-row button:hover { opacity: 0.85; }
+  .capture-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .capture-row button.success { background: var(--green); }
+
+  .capture-meta {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  .capture-meta kbd {
+    background: var(--surface3);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 10px;
+  }
+
+  /* ═══ Attention banner ═══ */
+  .attn-banner {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .attn-banner.show { display: block; }
+
+  .attn-banner-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .attn-list {
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .attn-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(239,68,68,0.08);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .attn-list li:last-child { border-bottom: none; }
+
+  .attn-status {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .attn-status.blocked { background: rgba(239,68,68,0.15); color: #f87171; }
+  .attn-status.uncommitted { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .attn-status.active { background: rgba(139,69,232,0.15); color: var(--accent2); }
+
+  .attn-text {
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .attn-proj {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  /* ═══ List Pages ═══ */
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header .back {
+    font-size: 13px;
+    color: var(--text3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .page-header .back:hover { border-color: var(--accent); color: var(--text); }
+
+  .page-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .page-header .count {
+    font-size: 13px;
+    color: var(--text3);
+  }
+
+  /* ═══ Search bar (in list views) ═══ */
+  .list-search {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .list-search input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .list-search input:focus { border-color: var(--accent); }
+  .list-search input::placeholder { color: var(--text3); }
+
+  .list-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text3);
+  }
+
+  /* ═══ Thought rows ═══ */
+  .thought-list { border-top: 1px solid var(--border); }
+
+  .thought-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: default;
+    transition: background 0.1s;
+  }
+
+  .thought-row:hover { background: var(--surface); margin: 0 -12px; padding: 12px 12px; border-radius: 8px; }
+
+  .thought-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .thought-main { flex: 1; min-width: 0; }
+
+  .thought-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .thought-text.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .thought-text b { font-weight: 600; }
+  .thought-text .rest { color: var(--text2); }
+
+  .thought-expand {
+    font-size: 12px;
+    color: var(--accent2);
+    cursor: pointer;
+    margin-top: 2px;
+    display: inline-block;
+  }
+
+  .thought-expand:hover { text-decoration: underline; }
+
+  .thought-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .thought-tag {
+    font-size: 10px;
+    color: var(--text3);
+    background: var(--surface2);
+    padding: 1px 7px;
+    border-radius: 4px;
+  }
+
+  .thought-action {
+    font-size: 11px;
+    color: var(--warm);
+    margin-top: 4px;
+  }
+
+  .thought-side {
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 60px;
+  }
+
+  .thought-time {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .thought-proj {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .thought-match {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+
+  /* ═══ Browse page ═══ */
+  .browse-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .browse-filter {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .browse-filter:hover { border-color: var(--accent); color: var(--text2); }
+  .browse-filter.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ═══ Loading / Empty ═══ */
+  .loading { text-align: center; padding: 40px; color: var(--text3); }
+
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-msg {
+    text-align: center;
+    padding: 40px;
+    font-size: 14px;
+    color: var(--text3);
+  }
+
+  /* ═══ Toast ═══ */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 200;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ═══ Projects Row ═══ */
+  .projects-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .project-card:hover {
+    border-color: var(--accentBorder);
+    background: var(--surface2);
+  }
+
+  .project-card .proj-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+
+  .project-card .proj-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .project-card .proj-count {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* ═══ Project Detail Page ═══ */
+  .proj-section {
+    margin-bottom: 24px;
+  }
+
+  .proj-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .proj-section-icon { font-size: 15px; }
+
+  .proj-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text2);
+  }
+
+  .proj-section-count {
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--surface3);
+    padding: 1px 8px;
+    border-radius: 10px;
+  }
+
+  /* ═══ Responsive ═══ */
+  @media (max-width: 640px) {
+    .hq-grid { grid-template-columns: 1fr; }
+    .hq-top { grid-template-columns: 1fr; }
+    .page { padding: 16px 14px 40px; }
+    nav { overflow-x: auto; }
+    nav button { padding: 10px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>&#x1F9E0; <span>Open Brain</span></h1>
+  <div class="subtitle" id="headerSubtitle">Loading...</div>
+</header>
+
+<nav id="nav">
+  <button class="active" data-page="hq">HQ</button>
+  <button data-page="decisions">Decisions</button>
+  <button data-page="lessons">Lessons</button>
+  <button data-page="tasks">Tasks</button>
+  <button data-page="insights">Insights</button>
+  <button data-page="references">References</button>
+  <button data-page="browse">Everything</button>
+</nav>
+
+<!-- ═══ PROJECT DETAIL PAGE ═══ -->
+<div class="page hidden" id="page-project">
+  <div class="page-header">
+    <button class="back" onclick="goTo('hq')">&larr; HQ</button>
+    <h2 id="projectTitle">BlobFX</h2>
+    <span class="count" id="projectCount"></span>
+  </div>
+  <div class="list-search">
+    <span class="list-search-icon">&#x1F50D;</span>
+    <input type="text" id="projectSearchInput" placeholder="Search within this project...">
+  </div>
+  <div id="projectContent">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ═══ HQ PAGE ═══ -->
+<div class="page" id="page-hq">
+
+  <!-- Attention Banner -->
+  <div class="attn-banner" id="attnBanner">
+    <div class="attn-banner-title">&#x1F6A8; Needs your attention</div>
+    <ul class="attn-list" id="attnList"></ul>
+  </div>
+
+  <!-- Quick Capture -->
+  <div class="hq-capture">
+    <div class="hq-capture-label">Quick Capture</div>
+    <div class="capture-row">
+      <textarea id="captureInput" placeholder="Type a thought, decision, or lesson..." rows="1"></textarea>
+      <button id="captureBtn">Save</button>
+    </div>
+    <div class="capture-meta"><kbd>Enter</kbd> to save &middot; <kbd>Shift+Enter</kbd> newline &middot; auto-categorized</div>
+  </div>
+
+  <!-- Projects -->
+  <div style="margin-top: 20px">
+    <div class="hq-capture-label" style="margin-bottom: 12px">Projects</div>
+  </div>
+  <div class="projects-row" id="projectsRow">
+    <div class="project-card" data-project="blobfx">
+      <div class="proj-icon">&#x1F3A8;</div>
+      <div class="proj-name">BlobFX</div>
+      <div class="proj-count" id="projCountBlobfx">--</div>
+    </div>
+    <div class="project-card" data-project="global">
+      <div class="proj-icon">&#x1F30D;</div>
+      <div class="proj-name">Global</div>
+      <div class="proj-count" id="projCountGlobal">--</div>
+    </div>
+    <div class="project-card" data-project="jobhunt">
+      <div class="proj-icon">&#x1F4BC;</div>
+      <div class="proj-name">JobHunt</div>
+      <div class="proj-count" id="projCountJobhunt">--</div>
+    </div>
+    <div class="project-card" data-project="jobops">
+      <div class="proj-icon">&#x2699;&#xFE0F;</div>
+      <div class="proj-name">JobOps</div>
+      <div class="proj-count" id="projCountJobops">--</div>
+    </div>
+  </div>
+
+  <!-- Section Pads -->
+  <div>
+    <div class="hq-capture-label" style="margin-bottom: 12px">By Type</div>
+  </div>
+
+  <div class="hq-grid" id="hqGrid">
+    <div class="hq-pad pad-decisions" data-page="decisions">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x2696;&#xFE0F;</div>
+        <div class="hq-pad-title">Decisions</div>
+        <div class="hq-pad-count" id="countDecisions">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewDecisions"><li>Loading...</li></ul>
+    </div>
+
+    <div class="hq-pad pad-lessons" data-page="lessons">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F4A1;</div>
+        <div class="hq-pad-title">Lessons Learned</div>
+        <div class="hq-pad-count" id="countLessons">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewLessons"><li>Loading...</li></ul>
+    </div>
+
+    <div class="hq-pad pad-tasks" data-page="tasks">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F534;</div>
+        <div class="hq-pad-title">Tasks</div>
+        <div class="hq-pad-count" id="countTasks">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewTasks"><li>Loading...</li></ul>
+    </div>
+
+    <div class="hq-pad pad-insights" data-page="insights">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x2728;</div>
+        <div class="hq-pad-title">Insights</div>
+        <div class="hq-pad-count" id="countInsights">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewInsights"><li>Loading...</li></ul>
+    </div>
+
+    <div class="hq-pad pad-references" data-page="references">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F4CC;</div>
+        <div class="hq-pad-title">References</div>
+        <div class="hq-pad-count" id="countReferences">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewReferences"><li>Loading...</li></ul>
+    </div>
+
+    <div class="hq-pad pad-sessions" data-page="sessions">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F4DD;</div>
+        <div class="hq-pad-title">Sessions</div>
+        <div class="hq-pad-count" id="countSessions">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewSessions"><li>Loading...</li></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LIST PAGES (decisions, lessons, tasks, etc.) ═══ -->
+<div class="page hidden" id="page-list">
+  <div class="page-header">
+    <button class="back" onclick="goTo('hq')">&larr; HQ</button>
+    <h2 id="listTitle">Decisions</h2>
+    <span class="count" id="listCount"></span>
+  </div>
+  <div class="list-search">
+    <span class="list-search-icon">&#x1F50D;</span>
+    <input type="text" id="listSearchInput" placeholder="Search within...">
+  </div>
+  <div id="listContent">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- ═══ BROWSE PAGE (everything + search) ═══ -->
+<div class="page hidden" id="page-browse">
+  <div class="page-header">
+    <button class="back" onclick="goTo('hq')">&larr; HQ</button>
+    <h2>Everything</h2>
+    <span class="count" id="browseCount"></span>
+  </div>
+  <div class="list-search">
+    <span class="list-search-icon">&#x1F50D;</span>
+    <input type="text" id="browseSearchInput" placeholder="Search by meaning...">
+  </div>
+  <div class="browse-filters" id="browseFilters">
+    <button class="browse-filter active" data-filter="all">All</button>
+    <button class="browse-filter" data-filter="project:blobfx">BlobFX</button>
+    <button class="browse-filter" data-filter="project:global">Global</button>
+    <button class="browse-filter" data-filter="project:jobhunt">JobHunt</button>
+    <button class="browse-filter" data-filter="project:jobops">JobOps</button>
+  </div>
+  <div id="browseContent">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ Config ═══
+const CONFIG = {
+  url: 'https://liiufrjsesepgsaqtlka.supabase.co/functions/v1/open-brain-mcp',
+  key: '5b49ac202d74ff591142e4a1a4e1a5f40ff26d1073fceeb0303f6ade351e38d8'
+};
+
+const TYPE_MAP = {
+  decisions: { type: 'decision', icon: '\u2696\uFE0F', title: 'Decisions' },
+  lessons: { type: 'feedback', icon: '\uD83D\uDCA1', title: 'Lessons Learned' },
+  tasks: { type: 'task', icon: '\uD83D\uDD34', title: 'Tasks' },
+  insights: { type: 'insight', icon: '\u2728', title: 'Insights' },
+  references: { type: 'reference', icon: '\uD83D\uDCCC', title: 'References' },
+  sessions: { type: 'session', icon: '\uD83D\uDCDD', title: 'Sessions' },
+};
+
+const TYPE_ICONS = {
+  decision: '\u2696\uFE0F', feedback: '\uD83D\uDCA1', insight: '\u2728',
+  session: '\uD83D\uDCDD', reference: '\uD83D\uDCCC', task: '\uD83D\uDD34',
+  person_note: '\uD83D\uDC64', project_state: '\uD83D\uDCCA'
+};
+
+const PROJECT_META = {
+  blobfx: { icon: '\uD83C\uDFA8', name: 'BlobFX' },
+  global: { icon: '\uD83C\uDF0D', name: 'Global' },
+  jobhunt: { icon: '\uD83D\uDCBC', name: 'JobHunt' },
+  jobops: { icon: '\u2699\uFE0F', name: 'JobOps' },
+};
+
+let currentPage = 'hq';
+let currentListType = null;
+let currentProject = null;
+let browseFilter = 'all';
+let statsData = null;
+
+// ═══ MCP ═══
+async function mcpCall(tool, args = {}) {
+  const res = await fetch(CONFIG.url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-brain-key': CONFIG.key,
+      'Accept': 'application/json, text/event-stream'
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0', id: Date.now(),
+      method: 'tools/call',
+      params: { name: tool, arguments: args }
+    })
+  });
+  const text = await res.text();
+  const dataLine = text.split('\n').find(l => l.startsWith('data: '));
+  if (!dataLine) throw new Error('No data in response');
+  const json = JSON.parse(dataLine.slice(6));
+  if (json.result?.isError) throw new Error(json.result.content[0]?.text || 'Error');
+  return json.result?.content[0]?.text || '';
+}
+
+// ═══ Helpers ═══
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function relTime(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return 'yesterday';
+  if (d < 7) return `${d}d ago`;
+  if (d < 30) return `${Math.floor(d/7)}w ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
+
+function leadText(text) {
+  const dot = text.search(/[.!?:]\s|[.!?]$/);
+  if (dot > 0 && dot < 100) {
+    return `<b>${escHtml(text.slice(0, dot + 1))}</b><span class="rest">${escHtml(text.slice(dot + 1))}</span>`;
+  }
+  return text.length <= 80
+    ? `<b>${escHtml(text)}</b>`
+    : `<b>${escHtml(text.slice(0, 70))}</b><span class="rest">${escHtml(text.slice(70))}</span>`;
+}
+
+// ═══ Navigation ═══
+function goTo(page) {
+  currentPage = page;
+
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+
+  // Update nav
+  document.querySelectorAll('nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === page);
+  });
+
+  if (page === 'hq') {
+    document.getElementById('page-hq').classList.remove('hidden');
+  } else if (page === 'browse') {
+    document.getElementById('page-browse').classList.remove('hidden');
+    loadBrowsePage();
+  } else if (page.startsWith('project:')) {
+    const proj = page.split(':')[1];
+    currentProject = proj;
+    const meta = PROJECT_META[proj] || { icon: '\uD83D\uDCC1', name: proj };
+    document.getElementById('page-project').classList.remove('hidden');
+    document.getElementById('projectTitle').textContent = meta.icon + ' ' + meta.name;
+    document.getElementById('projectSearchInput').value = '';
+    loadProjectPage(proj);
+  } else if (TYPE_MAP[page]) {
+    currentListType = page;
+    document.getElementById('page-list').classList.remove('hidden');
+    document.getElementById('listTitle').textContent = TYPE_MAP[page].title;
+    document.getElementById('listSearchInput').value = '';
+    loadListPage(page);
+  }
+}
+
+// Nav clicks
+document.getElementById('nav').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (btn) goTo(btn.dataset.page);
+});
+
+// Pad clicks
+document.getElementById('hqGrid').addEventListener('click', (e) => {
+  const pad = e.target.closest('.hq-pad');
+  if (pad) goTo(pad.dataset.page);
+});
+
+// Project card clicks
+document.getElementById('projectsRow').addEventListener('click', (e) => {
+  const card = e.target.closest('.project-card');
+  if (card) goTo('project:' + card.dataset.project);
+});
+
+// ═══ HQ ═══
+async function loadHQ() {
+  loadStats();
+  loadAttention();
+  loadPadPreviews();
+}
+
+async function loadStats() {
+  try {
+    const text = await mcpCall('thought_stats');
+    statsData = text;
+    const total = text.match(/Total thoughts: (\d+)/)?.[1] || '0';
+    const dateRange = text.match(/Date range: (.+)/)?.[1] || '';
+    document.getElementById('headerSubtitle').textContent = `${total} thoughts captured`;
+
+    // Parse counts per type
+    const typeSection = text.split('By type:')[1]?.split('\n\n')[0] || '';
+    for (const [key, info] of Object.entries(TYPE_MAP)) {
+      const match = typeSection.match(new RegExp(`${info.type}: (\\d+)`));
+      const count = match?.[1] || '0';
+      const el = document.getElementById('count' + key.charAt(0).toUpperCase() + key.slice(1));
+      if (el) el.textContent = count;
+    }
+
+    // Parse counts per project
+    const projSection = text.split('By project:')[1]?.split('\n\n')[0] || '';
+    for (const proj of Object.keys(PROJECT_META)) {
+      const match = projSection.match(new RegExp(`${proj}: (\\d+)`));
+      const count = match?.[1] || '0';
+      const el = document.getElementById('projCount' + proj.charAt(0).toUpperCase() + proj.slice(1));
+      if (el) el.textContent = count + ' thoughts';
+    }
+  } catch(e) {
+    document.getElementById('headerSubtitle').textContent = 'Could not load stats';
+  }
+}
+
+async function loadAttention() {
+  try {
+    const text = await mcpCall('open_items');
+    const banner = document.getElementById('attnBanner');
+
+    if (text.includes('No open items')) {
+      banner.classList.remove('show');
+      return;
+    }
+
+    const items = text.split(/\n\n(?=\d+\.)/).map(block => {
+      const projMatch = block.match(/\[(\w+)\]/);
+      const statusMatch = block.match(/\((\w+),/);
+      const contentStart = block.indexOf('\n   ');
+      const content = contentStart > -1 ? block.slice(contentStart).trim() : '';
+      return {
+        project: projMatch?.[1] || '',
+        status: statusMatch?.[1] || 'active',
+        content
+      };
+    }).filter(i => i.content);
+
+    if (!items.length) { banner.classList.remove('show'); return; }
+
+    banner.classList.add('show');
+    document.getElementById('attnList').innerHTML = items.slice(0, 5).map(i => `
+      <li>
+        <span class="attn-status ${i.status}">${i.status}</span>
+        <span class="attn-text">${escHtml(i.content.slice(0, 100))}</span>
+        <span class="attn-proj">${i.project}</span>
+      </li>
+    `).join('');
+  } catch(e) {
+    document.getElementById('attnBanner').classList.remove('show');
+  }
+}
+
+async function loadPadPreviews() {
+  for (const [key, info] of Object.entries(TYPE_MAP)) {
+    try {
+      const text = await mcpCall('list_thoughts', { type: info.type, limit: 3 });
+      const el = document.getElementById('preview' + key.charAt(0).toUpperCase() + key.slice(1));
+      if (text.includes('No thoughts found')) {
+        el.innerHTML = '<li style="color:var(--text3)">None yet</li>';
+        continue;
+      }
+      const entries = text.split(/\n\n(?=\d+\.)/).map(parseListEntry).filter(Boolean);
+      el.innerHTML = entries.slice(0, 3).map(e =>
+        `<li>${escHtml(e.content.slice(0, 60))}${e.content.length > 60 ? '...' : ''}</li>`
+      ).join('');
+    } catch(e) {
+      // silent
+    }
+  }
+}
+
+// ═══ List Pages ═══
+async function loadListPage(key, searchQuery) {
+  const container = document.getElementById('listContent');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  try {
+    const info = TYPE_MAP[key];
+    let entries;
+
+    if (searchQuery) {
+      const text = await mcpCall('search_thoughts', { query: searchQuery, type: info.type, limit: 30 });
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">No matches</div>';
+        document.getElementById('listCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=--- Result)/).map(parseSearchEntry).filter(Boolean);
+    } else {
+      const text = await mcpCall('list_thoughts', { type: info.type, limit: 50 });
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">Nothing here yet</div>';
+        document.getElementById('listCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=\d+\.)/).map(parseListEntry).filter(Boolean);
+    }
+
+    document.getElementById('listCount').textContent = `(${entries.length})`;
+    renderThoughtList(container, entries);
+  } catch(e) {
+    container.innerHTML = `<div class="empty-msg">${escHtml(e.message)}</div>`;
+  }
+}
+
+// List search
+let listSearchTimeout;
+document.getElementById('listSearchInput').addEventListener('input', (e) => {
+  clearTimeout(listSearchTimeout);
+  listSearchTimeout = setTimeout(() => {
+    loadListPage(currentListType, e.target.value.trim() || null);
+  }, 400);
+});
+
+// ═══ Browse Page ═══
+async function loadBrowsePage(searchQuery) {
+  const container = document.getElementById('browseContent');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const query = searchQuery ?? document.getElementById('browseSearchInput').value.trim();
+
+  try {
+    let entries;
+    if (query) {
+      const args = { query, limit: 30 };
+      if (browseFilter.startsWith('project:')) args.project = browseFilter.split(':')[1];
+      const text = await mcpCall('search_thoughts', args);
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">No matches</div>';
+        document.getElementById('browseCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=--- Result)/).map(parseSearchEntry).filter(Boolean);
+    } else {
+      const args = { limit: 50 };
+      if (browseFilter.startsWith('project:')) args.project = browseFilter.split(':')[1];
+      const text = await mcpCall('list_thoughts', args);
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">Nothing here yet</div>';
+        document.getElementById('browseCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=\d+\.)/).map(parseListEntry).filter(Boolean);
+    }
+
+    document.getElementById('browseCount').textContent = `(${entries.length})`;
+    renderThoughtList(container, entries);
+  } catch(e) {
+    container.innerHTML = `<div class="empty-msg">${escHtml(e.message)}</div>`;
+  }
+}
+
+// Browse search
+let browseSearchTimeout;
+document.getElementById('browseSearchInput').addEventListener('input', () => {
+  clearTimeout(browseSearchTimeout);
+  browseSearchTimeout = setTimeout(() => loadBrowsePage(), 400);
+});
+
+// Browse filters
+document.getElementById('browseFilters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.browse-filter');
+  if (!btn) return;
+  document.querySelectorAll('.browse-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  browseFilter = btn.dataset.filter;
+  loadBrowsePage();
+});
+
+// ═══ Render Thought List ═══
+function renderThoughtList(container, entries) {
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty-msg">Nothing found</div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="thought-list">' + entries.map((e, i) => {
+    const icon = TYPE_ICONS[e.type] || '\uD83D\uDCAD';
+    const isLong = e.content.length > 160;
+    const id = 'tr-' + Math.random().toString(36).slice(2, 8);
+
+    return `
+      <div class="thought-row">
+        <span class="thought-icon">${icon}</span>
+        <div class="thought-main">
+          <div class="thought-text ${isLong ? 'collapsed' : ''}" id="${id}">${leadText(e.content)}</div>
+          ${isLong ? `<span class="thought-expand" onclick="toggleRow('${id}', this)">more</span>` : ''}
+          <div class="thought-meta">
+            ${e.topics.map(t => `<span class="thought-tag">${escHtml(t)}</span>`).join('')}
+          </div>
+          ${e.actions?.length ? e.actions.map(a => `<div class="thought-action">\u2192 ${escHtml(a)}</div>`).join('') : ''}
+        </div>
+        <div class="thought-side">
+          ${e.similarity ? `<div class="thought-match">${e.similarity.toFixed(0)}%</div>` : ''}
+          <div class="thought-time">${e.date ? relTime(e.date) : ''}</div>
+          ${e.project ? `<div class="thought-proj">${e.project}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+function toggleRow(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('collapsed');
+  btn.textContent = el.classList.contains('collapsed') ? 'more' : 'less';
+}
+
+// ═══ Parsers ═══
+function parseListEntry(block) {
+  if (!block.trim()) return null;
+  const dateMatch = block.match(/\[(\d+\/\d+\/\d+)\]/);
+  const projMatch = block.match(/\[(\w+)\]/g);
+  const typeMatch = block.match(/\((\w+)/);
+  const tagsMatch = block.match(/\u2014 (.+?)\)/);
+  const contentStart = block.indexOf('\n   ');
+  const content = contentStart > -1 ? block.slice(contentStart).trim() : block;
+
+  let project = '';
+  if (projMatch) {
+    for (const m of projMatch) {
+      const v = m.replace(/[\[\]]/g, '');
+      if (!v.match(/^\d/)) { project = v; break; }
+    }
+  }
+
+  return {
+    content, type: typeMatch?.[1] || 'unknown', project,
+    topics: tagsMatch?.[1]?.split(', ') || [],
+    date: dateMatch?.[1] || '', status: null, actions: [], similarity: null
+  };
+}
+
+function parseSearchEntry(block) {
+  if (!block.trim()) return null;
+  const simMatch = block.match(/(\d+\.\d+)% match/);
+  const dateMatch = block.match(/Captured: (.+)/);
+  const typeMatch = block.match(/Type: (\w+)/);
+  const projMatch = block.match(/Project: (\w+)/);
+  const topicsMatch = block.match(/Topics: (.+)/);
+  const statusMatch = block.match(/Status: (\w+)/);
+  const actionsMatch = block.match(/Actions: (.+)/);
+
+  const lines = block.split('\n');
+  let ci = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '') { ci = i + 1; break; }
+  }
+  const content = lines.slice(ci).join('\n').trim();
+
+  return {
+    content, type: typeMatch?.[1] || 'unknown', project: projMatch?.[1] || '',
+    topics: topicsMatch?.[1]?.split(', ') || [],
+    date: dateMatch?.[1] || '', status: statusMatch?.[1] || null,
+    actions: actionsMatch?.[1]?.split('; ') || [],
+    similarity: simMatch ? parseFloat(simMatch[1]) : null
+  };
+}
+
+// ═══ Project Page ═══
+async function loadProjectPage(proj, searchQuery) {
+  const container = document.getElementById('projectContent');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  try {
+    let entries;
+
+    if (searchQuery) {
+      const text = await mcpCall('search_thoughts', { query: searchQuery, project: proj, limit: 30 });
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">No matches</div>';
+        document.getElementById('projectCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=--- Result)/).map(parseSearchEntry).filter(Boolean);
+      document.getElementById('projectCount').textContent = `(${entries.length} results)`;
+      renderThoughtList(container, entries);
+    } else {
+      // Load all thoughts for this project, grouped by type
+      const text = await mcpCall('list_thoughts', { project: proj, limit: 50 });
+      if (text.includes('No thoughts found')) {
+        container.innerHTML = '<div class="empty-msg">No thoughts in this project yet</div>';
+        document.getElementById('projectCount').textContent = '';
+        return;
+      }
+      entries = text.split(/\n\n(?=\d+\.)/).map(parseListEntry).filter(Boolean);
+      document.getElementById('projectCount').textContent = `(${entries.length})`;
+
+      // Group by type
+      const groups = {};
+      for (const e of entries) {
+        const t = e.type || 'unknown';
+        if (!groups[t]) groups[t] = [];
+        groups[t].push(e);
+      }
+
+      // Render grouped
+      const typeOrder = ['decision', 'feedback', 'task', 'insight', 'reference', 'session', 'project_state', 'person_note'];
+      let html = '';
+      for (const t of typeOrder) {
+        if (!groups[t]) continue;
+        const icon = TYPE_ICONS[t] || '\uD83D\uDCAD';
+        const label = t.replace(/_/g, ' ');
+        html += `
+          <div class="proj-section">
+            <div class="proj-section-header">
+              <span class="proj-section-icon">${icon}</span>
+              <span class="proj-section-title">${label}s</span>
+              <span class="proj-section-count">${groups[t].length}</span>
+            </div>
+            <div class="thought-list">
+              ${groups[t].map(e => renderThoughtRow(e)).join('')}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html || '<div class="empty-msg">No thoughts found</div>';
+    }
+  } catch(e) {
+    container.innerHTML = `<div class="empty-msg">${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderThoughtRow(e) {
+  const icon = TYPE_ICONS[e.type] || '\uD83D\uDCAD';
+  const isLong = e.content.length > 160;
+  const id = 'tr-' + Math.random().toString(36).slice(2, 8);
+
+  return `
+    <div class="thought-row">
+      <span class="thought-icon">${icon}</span>
+      <div class="thought-main">
+        <div class="thought-text ${isLong ? 'collapsed' : ''}" id="${id}">${leadText(e.content)}</div>
+        ${isLong ? `<span class="thought-expand" onclick="toggleRow('${id}', this)">more</span>` : ''}
+        <div class="thought-meta">
+          ${e.topics.map(t => `<span class="thought-tag">${escHtml(t)}</span>`).join('')}
+        </div>
+        ${e.actions?.length ? e.actions.map(a => `<div class="thought-action">\u2192 ${escHtml(a)}</div>`).join('') : ''}
+      </div>
+      <div class="thought-side">
+        ${e.similarity ? `<div class="thought-match">${e.similarity.toFixed(0)}%</div>` : ''}
+        <div class="thought-time">${e.date ? relTime(e.date) : ''}</div>
+      </div>
+    </div>
+  `;
+}
+
+// Project search
+let projSearchTimeout;
+document.getElementById('projectSearchInput').addEventListener('input', (e) => {
+  clearTimeout(projSearchTimeout);
+  projSearchTimeout = setTimeout(() => {
+    loadProjectPage(currentProject, e.target.value.trim() || null);
+  }, 400);
+});
+
+// ═══ Capture ═══
+async function captureThought() {
+  const input = document.getElementById('captureInput');
+  const btn = document.getElementById('captureBtn');
+  const text = input.value.trim();
+  if (!text) return;
+
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  try {
+    const result = await mcpCall('capture_thought', { content: text });
+    input.value = '';
+    input.style.height = 'auto';
+    btn.classList.add('success');
+    btn.textContent = 'Saved!';
+    showToast('Captured! ' + result);
+
+    setTimeout(() => {
+      btn.classList.remove('success');
+      btn.textContent = 'Save';
+      btn.disabled = false;
+    }, 1200);
+
+    // Refresh HQ
+    setTimeout(() => { loadStats(); loadAttention(); loadPadPreviews(); }, 800);
+  } catch(e) {
+    showToast('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Save';
+  }
+}
+
+document.getElementById('captureBtn').addEventListener('click', captureThought);
+
+document.getElementById('captureInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    captureThought();
+  }
+});
+
+document.getElementById('captureInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// ═══ Toast ═══
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ═══ Keyboard ═══
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    goTo('browse');
+    setTimeout(() => document.getElementById('browseSearchInput').focus(), 50);
+  }
+  if (e.key === 'Escape' && currentPage !== 'hq') {
+    goTo('hq');
+  }
+});
+
+// ═══ Init ═══
+loadHQ();
+</script>
+</body>
+</html>
