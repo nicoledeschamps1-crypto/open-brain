@@ -14,7 +14,7 @@ Claude Code / ChatGPT / any MCP client
 
 ## Metadata Schema (Nicole-specific)
 Every thought gets auto-extracted metadata:
-- `type`: session | decision | feedback | skill | insight | reference | person_note | project_state | task
+- `type`: session | decision | feedback | skill | agent | insight | reference | person_note | project_state | task
 - `project`: blobfx | jobhunt | jobops | global
 - `topics`: ["audio", "shader", "ios", "mobile", "p5js", "mediapipe", ...]
 - `people`: ["@pbltrr", ...]

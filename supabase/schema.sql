@@ -129,6 +129,18 @@ from thoughts
 where metadata->>'type' = 'skill'
 order by created_at desc;
 
+-- All agent configurations/teams/workflows
+create or replace view agents as
+select
+  id,
+  content,
+  metadata->'topics' as domains,
+  metadata->>'project' as project,
+  created_at
+from thoughts
+where metadata->>'type' = 'agent'
+order by created_at desc;
+
 -- All feedback/lessons
 create or replace view lessons as
 select

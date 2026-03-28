@@ -51,7 +51,7 @@ async function extractMetadata(text: string): Promise<Record<string, unknown>> {
         {
           role: "system",
           content: `Extract metadata from a developer's captured thought. Return JSON with:
-- "type": one of "session", "decision", "feedback", "skill", "insight", "reference", "person_note", "project_state", "task". Use "skill" for a capability, technique, or pattern the user has learned and can reuse (e.g. "Skill: WebGL shader pipeline"). Use "feedback" for lessons from mistakes or incidents.
+- "type": one of "session", "decision", "feedback", "skill", "agent", "insight", "reference", "person_note", "project_state", "task". Use "skill" for a capability, technique, or pattern the user has learned and can reuse (e.g. "Skill: WebGL shader pipeline"). Use "agent" for an AI agent configuration, team composition, or autonomous workflow pattern (e.g. "Agent: 4-parallel reviewer for code audits"). Use "feedback" for lessons from mistakes or incidents.
 - "project": one of "blobfx", "jobhunt", "jobops", "global", or null if unclear
 - "topics": array of 1-4 short tags (e.g. "audio", "shader", "ios", "mobile", "p5js", "mediapipe", "timeline", "ui", "architecture")
 - "people": array of people mentioned (empty if none)
@@ -93,7 +93,7 @@ server.registerTool(
       limit: z.number().optional().default(10),
       threshold: z.number().optional().default(0.5),
       project: z.string().optional().describe("Filter by project: blobfx, jobhunt, jobops, global"),
-      type: z.string().optional().describe("Filter by type: session, decision, feedback, insight, reference, person_note, project_state, task"),
+      type: z.string().optional().describe("Filter by type: session, decision, feedback, skill, agent, insight, reference, person_note, project_state, task"),
     },
   },
   async ({ query, limit, threshold, project, type }) => {
@@ -242,7 +242,7 @@ server.registerTool(
     inputSchema: {
       content: z.string().describe("The thought — a clear, standalone statement"),
       project: z.string().optional().describe("Override project: blobfx, jobhunt, jobops, global"),
-      type: z.string().optional().describe("Override type: session, decision, feedback, skill, insight, reference, person_note, project_state, task"),
+      type: z.string().optional().describe("Override type: session, decision, feedback, skill, agent, insight, reference, person_note, project_state, task"),
     },
   },
   async ({ content, project, type }) => {

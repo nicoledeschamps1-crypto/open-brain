@@ -191,6 +191,7 @@
   .pad-insights .hq-pad-icon { background: rgba(99,102,241,0.12); color: var(--blue); }
   .pad-references .hq-pad-icon { background: rgba(6,182,212,0.12); color: var(--cyan); }
   .pad-skills .hq-pad-icon { background: rgba(249,115,22,0.12); color: var(--orange); }
+  .pad-agents .hq-pad-icon { background: rgba(139,92,246,0.12); color: #8B5CF6; }
   .pad-sessions .hq-pad-icon { background: rgba(236,72,153,0.12); color: var(--pink); }
 
   /* ═══ Full-width top pads ═══ */
@@ -747,6 +748,7 @@
   <button data-page="decisions">Decisions</button>
   <button data-page="lessons">Lessons</button>
   <button data-page="skills">Skills</button>
+  <button data-page="agents">Agents</button>
   <button data-page="tasks">Tasks</button>
   <button data-page="insights">Insights</button>
   <button data-page="references">References</button>
@@ -848,6 +850,15 @@
       <ul class="hq-pad-preview" id="previewSkills"><li>Loading...</li></ul>
     </div>
 
+    <div class="hq-pad pad-agents" data-page="agents">
+      <div class="hq-pad-header">
+        <div class="hq-pad-icon">&#x1F916;</div>
+        <div class="hq-pad-title">Agents</div>
+        <div class="hq-pad-count" id="countAgents">--</div>
+      </div>
+      <ul class="hq-pad-preview" id="previewAgents"><li>Loading...</li></ul>
+    </div>
+
     <div class="hq-pad pad-tasks" data-page="tasks">
       <div class="hq-pad-header">
         <div class="hq-pad-icon">&#x1F534;</div>
@@ -938,6 +949,7 @@ const TYPE_MAP = {
   decisions: { type: 'decision', icon: '\u2696\uFE0F', title: 'Decisions' },
   lessons: { type: 'feedback', icon: '\uD83D\uDCA1', title: 'Lessons Learned' },
   skills: { type: 'skill', icon: '\uD83D\uDEE0\uFE0F', title: 'Skills' },
+  agents: { type: 'agent', icon: '\uD83E\uDD16', title: 'Agents' },
   tasks: { type: 'task', icon: '\uD83D\uDD34', title: 'Tasks' },
   insights: { type: 'insight', icon: '\u2728', title: 'Insights' },
   references: { type: 'reference', icon: '\uD83D\uDCCC', title: 'References' },
@@ -945,7 +957,7 @@ const TYPE_MAP = {
 };
 
 const TYPE_ICONS = {
-  decision: '\u2696\uFE0F', feedback: '\uD83D\uDCA1', skill: '\uD83D\uDEE0\uFE0F', insight: '\u2728',
+  decision: '\u2696\uFE0F', feedback: '\uD83D\uDCA1', skill: '\uD83D\uDEE0\uFE0F', agent: '\uD83E\uDD16', insight: '\u2728',
   session: '\uD83D\uDCDD', reference: '\uD83D\uDCCC', task: '\uD83D\uDD34',
   person_note: '\uD83D\uDC64', project_state: '\uD83D\uDCCA'
 };
